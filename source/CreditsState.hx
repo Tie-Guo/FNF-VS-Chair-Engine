@@ -53,7 +53,7 @@ class CreditsState extends MusicBeatState
 		add(grpOptions);
 
 		#if MODS_ALLOWED
-		var path:String = SUtil.getPath() + 'modsList.txt';
+		var path:String = 'modsList.txt';
 		if(FileSystem.exists(path))
 		{
 			var leMods:Array<String> = CoolUtil.coolTextFile(path);
@@ -81,11 +81,17 @@ class CreditsState extends MusicBeatState
 		#end
 
 		var pisspoop:Array<Array<String>> = [ //Name - Icon name - Description - Link - BG Color
-			['Psych Engine Android Team'],
-			['MaysLastPlay',		'MaysLastPlay',		'Android Porter',							'https://www.youtube.com/channel/UCx0LxtFR8ROd9sFAq-UxDfw',	'5DE7FF'],
-			['Nuno Filipe Studios',	'nuno',				'Android Porter',							'https://www.youtube.com/channel/UCq7G3p4msVN5SX2CpJ86tTw',	'989c99'],
-			['M.A. Jigsaw', 		'saw',				'AndroidTools Creator/Vpad Designer',		'https://www.youtube.com/channel/UC2Sk7vtPzOvbVzdVTWrribQ', '444444'],
-			['MarioMaster',		    'mariomaster',		    'hi its a me',	 'https://www.youtube.com/c/MarioMaster1997',	'D10616'],
+			['VS CHAIR SB TEAM'],
+			['Yeoildx', 'Yeoildx', 'Main Programmer/Musician/Chart/Artist/Animator', 'https://space.bilibili.com/630435662/video', '66ff33'],
+			['kris', 'kris', 'Artist', 'https://space.bilibili.com/699981203', 'ff0000'],
+			['HAHUEI', 'h', 'Chatr/Animator/Programmer', 'https://space.bilibili.com/3493288327777064', '0034ff'],
+			['Dmmchh', 'Dmmchh', 'Programmer', 'https://space.bilibili.com/3493288327777064', 'ffffff'],
+			['CarefullyScarf487', '487', 'Artist', 'https://space.bilibili.com/347700366', '6e56ea'],
+			['frog', 'frog', 'Animator/Programmer', 'https://b23.tv/zc7E9qe', '00ff00'],
+			['Andrew-Kevin', 'yy', 'Musician', 'https://space.bilibili.com/356018364', 'ff0000'],
+			['Redlight', 'Redlight', 'Animator', 'https://space.bilibili.com/266896755', 'ff6e7a'],
+			['TieGuo', 'TieGuo', 'Android Port/Chart', 'https://space.bilibili.com/508557497', 'fff000'],
+			['Gubi', 'Gubi', '?。', 'https://space.bilibili.com/527348030', 'cacaca'],
 			['Psych Engine Team'],
 			['Shadow Mario',		'shadowmario',		'Main Programmer of Psych Engine',								'https://twitter.com/Shadow_Mario_',	'444444'],
 			['RiverOaken',			'river',			'Main Artist/Animator of Psych Engine',							'https://twitter.com/RiverOaken',		'B42F71'],
@@ -97,7 +103,6 @@ class CreditsState extends MusicBeatState
 			['Engine Contributors'],
 			['iFlicky',				'flicky',			'Composer of Psync and Tea Time\nMade the Dialogue Sounds',		'https://twitter.com/flicky_i',			'9E29CF'],
 			['SqirraRNG',			'sqirra',			'Crash Handler and Base code for\nChart Editor\'s Waveform',	'https://twitter.com/gedehari',			'E1843A'],
-			['EliteMasterEric',		'mastereric',		'Runtime Shaders support',										'https://twitter.com/EliteMasterEric',	'FFBD40'],
 			['PolybiusProxy',		'proxy',			'.MP4 Video Loader Library (hxCodec)',							'https://twitter.com/polybiusproxy',	'DCD294'],
 			['KadeDev',				'kade',				'Fixed some cool stuff on Chart Editor\nand other PRs',			'https://twitter.com/kade0912',			'64A250'],
 			['Keoiki',				'keoiki',			'Note Splash Animations',										'https://twitter.com/Keoiki_',			'D2D2D2'],
@@ -118,11 +123,16 @@ class CreditsState extends MusicBeatState
 		for (i in 0...creditsStuff.length)
 		{
 			var isSelectable:Bool = !unselectableCheck(i);
-			var optionText:Alphabet = new Alphabet(FlxG.width / 2, 300, creditsStuff[i][0], !isSelectable);
+			var optionText:Alphabet = new Alphabet(0, 70 * i, creditsStuff[i][0], !isSelectable, false);
 			optionText.isMenuItem = true;
+			optionText.screenCenter(X);
+			optionText.yAdd -= 70;
+			if(isSelectable) {
+				optionText.x -= 70;
+			}
+			optionText.forceX = optionText.x;
+			//optionText.yMult = 90;
 			optionText.targetY = i;
-			optionText.changeX = false;
-			optionText.snapToPosition();
 			grpOptions.add(optionText);
 
 			if(isSelectable) {
@@ -142,7 +152,6 @@ class CreditsState extends MusicBeatState
 
 				if(curSelected == -1) curSelected = i;
 			}
-			else optionText.alignment = CENTERED;
 		}
 		
 		descBox = new AttachedSprite();
@@ -159,13 +168,14 @@ class CreditsState extends MusicBeatState
 		//descText.borderSize = 2.4;
 		descBox.sprTracker = descText;
 		add(descText);
+		
+		#if android
+		addVirtualPad(UP_DOWN, A_B);
+		#end
 
 		bg.color = getCurrentBGColor();
 		intendedColor = bg.color;
 		changeSelection();
-                #if android
-                addVirtualPad(UP_DOWN, A_B);
-                #end
 		super.create();
 	}
 
@@ -190,12 +200,12 @@ class CreditsState extends MusicBeatState
 
 				if (upP)
 				{
-					changeSelection(-shiftMult);
+					changeSelection(-1 * shiftMult);
 					holdTime = 0;
 				}
 				if (downP)
 				{
-					changeSelection(shiftMult);
+					changeSelection(1 * shiftMult);
 					holdTime = 0;
 				}
 
@@ -228,7 +238,7 @@ class CreditsState extends MusicBeatState
 		
 		for (item in grpOptions.members)
 		{
-			if(!item.bold)
+			if(!item.isBold)
 			{
 				var lerpVal:Float = CoolUtil.boundTo(elapsed * 12, 0, 1);
 				if(item.targetY == 0)
@@ -236,10 +246,12 @@ class CreditsState extends MusicBeatState
 					var lastX:Float = item.x;
 					item.screenCenter(X);
 					item.x = FlxMath.lerp(lastX, item.x - 70, lerpVal);
+					item.forceX = item.x;
 				}
 				else
 				{
 					item.x = FlxMath.lerp(item.x, 200 + -40 * Math.abs(item.targetY), lerpVal);
+					item.forceX = item.x;
 				}
 			}
 		}
