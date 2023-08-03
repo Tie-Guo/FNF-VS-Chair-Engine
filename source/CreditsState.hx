@@ -12,6 +12,7 @@ import flixel.math.FlxMath;
 import flixel.text.FlxText;
 import flixel.util.FlxColor;
 import flixel.tweens.FlxTween;
+import flixel.addons.display.FlxBackdrop;
 import flixel.tweens.FlxEase;
 #if MODS_ALLOWED
 import sys.FileSystem;
@@ -34,6 +35,7 @@ class CreditsState extends MusicBeatState
 	var intendedColor:Int;
 	var colorTween:FlxTween;
 	var descBox:AttachedSprite;
+	var velocityBG:FlxBackdrop;
 
 	var offsetThing:Float = -75;
 
@@ -49,11 +51,15 @@ class CreditsState extends MusicBeatState
 		add(bg);
 		bg.screenCenter();
 		
+		velocityBG = new FlxBackdrop(Paths.image('velocity_background'));
+		velocityBG.velocity.set(50, 50);
+		add(velocityBG);
+		
 		grpOptions = new FlxTypedGroup<Alphabet>();
 		add(grpOptions);
 
 		#if MODS_ALLOWED
-		var path:String = 'modsList.txt';
+		var path:String = SUtil.getPath() + 'modsList.txt';
 		if(FileSystem.exists(path))
 		{
 			var leMods:Array<String> = CoolUtil.coolTextFile(path);
@@ -123,16 +129,11 @@ class CreditsState extends MusicBeatState
 		for (i in 0...creditsStuff.length)
 		{
 			var isSelectable:Bool = !unselectableCheck(i);
-			var optionText:Alphabet = new Alphabet(0, 70 * i, creditsStuff[i][0], !isSelectable, false);
+			var optionText:Alphabet = new Alphabet(FlxG.width / 2, 300, creditsStuff[i][0], !isSelectable);
 			optionText.isMenuItem = true;
-			optionText.screenCenter(X);
-			optionText.yAdd -= 70;
-			if(isSelectable) {
-				optionText.x -= 70;
-			}
-			optionText.forceX = optionText.x;
-			//optionText.yMult = 90;
 			optionText.targetY = i;
+			optionText.changeX = false;
+			optionText.snapToPosition();
 			grpOptions.add(optionText);
 
 			if(isSelectable) {
@@ -152,6 +153,7 @@ class CreditsState extends MusicBeatState
 
 				if(curSelected == -1) curSelected = i;
 			}
+			else optionText.alignment = CENTERED;
 		}
 		
 		descBox = new AttachedSprite();
@@ -168,14 +170,13 @@ class CreditsState extends MusicBeatState
 		//descText.borderSize = 2.4;
 		descBox.sprTracker = descText;
 		add(descText);
-		
-		#if android
-		addVirtualPad(UP_DOWN, A_B);
-		#end
 
 		bg.color = getCurrentBGColor();
 		intendedColor = bg.color;
 		changeSelection();
+                #if android
+                addVirtualPad(UP_DOWN, A_B_C);
+                #end
 		super.create();
 	}
 
@@ -193,19 +194,19 @@ class CreditsState extends MusicBeatState
 			if(creditsStuff.length > 1)
 			{
 				var shiftMult:Int = 1;
-				if(FlxG.keys.pressed.SHIFT) shiftMult = 3;
+				if(FlxG.keys.pressed.SHIFT #if android || _virtualpad.buttonC.pressed #end) shiftMult = 3;
 
 				var upP = controls.UI_UP_P;
 				var downP = controls.UI_DOWN_P;
 
 				if (upP)
 				{
-					changeSelection(-1 * shiftMult);
+					changeSelection(-shiftMult);
 					holdTime = 0;
 				}
 				if (downP)
 				{
-					changeSelection(1 * shiftMult);
+					changeSelection(shiftMult);
 					holdTime = 0;
 				}
 
@@ -238,7 +239,7 @@ class CreditsState extends MusicBeatState
 		
 		for (item in grpOptions.members)
 		{
-			if(!item.isBold)
+			if(!item.bold)
 			{
 				var lerpVal:Float = CoolUtil.boundTo(elapsed * 12, 0, 1);
 				if(item.targetY == 0)
@@ -246,12 +247,10 @@ class CreditsState extends MusicBeatState
 					var lastX:Float = item.x;
 					item.screenCenter(X);
 					item.x = FlxMath.lerp(lastX, item.x - 70, lerpVal);
-					item.forceX = item.x;
 				}
 				else
 				{
 					item.x = FlxMath.lerp(item.x, 200 + -40 * Math.abs(item.targetY), lerpVal);
-					item.forceX = item.x;
 				}
 			}
 		}
