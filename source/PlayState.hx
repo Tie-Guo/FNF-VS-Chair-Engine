@@ -1932,7 +1932,6 @@ class PlayState extends MusicBeatState
 			if (songSpeedTween != null)
 				songSpeedTween.active = false;
 
-			if(carTimer != null) carTimer.active = false;
 
 			var chars:Array<Character> = [boyfriend, gf, dad];
 			for (char in chars) {
@@ -1967,8 +1966,6 @@ class PlayState extends MusicBeatState
 				finishTimer.active = true;
 			if (songSpeedTween != null)
 				songSpeedTween.active = true;
-
-			if(carTimer != null) carTimer.active = true;
 
 			var chars:Array<Character> = [boyfriend, gf, dad];
 			for (char in chars) {
@@ -2713,10 +2710,7 @@ class PlayState extends MusicBeatState
 						}
 				}
 				reloadHealthBarColors();
-
-			case 'BG Freaks Expression':
-				if(bgGirls != null) bgGirls.swapDanceType();
-
+				
 			case 'Change Scroll Speed':
 				if (songSpeedType == "constant")
 					return;
